@@ -14,7 +14,7 @@ class ScrollTextWindow(QWidget):
         self.timer = QTimer(self)
         # 设置刷新时间和移动距离
         self.timeStep = 20
-        self.moveStep = 1.2
+        self.moveStep =1
         self.songCurrentIndex = 0
         # 设置字符串溢出标志位
         self.isSongNameAllOut = False
@@ -24,9 +24,9 @@ class ScrollTextWindow(QWidget):
         # 初始化界面
         self.initWidget()
 
-    # def update(self,text):
-    #     self.songName = text
-    #     self.initWidget()
+    def update1(self,text):
+        self.songName = text
+        self.songCurrentIndex = 0
 
     def initWidget(self):
         """ 初始化界面 """
@@ -46,7 +46,7 @@ class ScrollTextWindow(QWidget):
 
     def getTextWidth(self):
         """ 计算文本的总宽度 """
-        songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 40, 400))
+        songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 25, 400))
         self.songNameWidth = songFontMetrics.width(self.songName)
         # songerFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 12, 500))
         # self.songerNameWidth = songerFontMetrics.width(self.songerName)
@@ -85,17 +85,17 @@ class ScrollTextWindow(QWidget):
         painter = QPainter(self)
         painter.setPen(QColor(221,0,0))
         # 绘制歌名
-        painter.setFont(QFont('Microsoft YaHei',40))
+        painter.setFont(QFont('Microsoft YaHei',25))
         if self.isSongNameTooLong:
             # 实际上绘制了两段完整的字符串
             # 从负的横坐标开始绘制第一段字符串
             painter.drawText(self.spacing * self.isSongNameAllOut - self.moveStep *
-                             self.songCurrentIndex, 54, self.songName)
+                             self.songCurrentIndex, 48, self.songName)
             # 绘制第二段字符串
             painter.drawText(self.songNameWidth - self.moveStep * self.songCurrentIndex +
-                             self.spacing * (1 + self.isSongNameAllOut), 54, self.songName)
+                             self.spacing * (1 + self.isSongNameAllOut), 48, self.songName)
         else:
-            painter.drawText(0, 54, self.songName)
+            painter.drawText(0, 48, self.songName)
 
         # 绘制歌手名
         # painter.setFont(QFont('Microsoft YaHei', 12, 500))
