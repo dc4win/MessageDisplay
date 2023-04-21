@@ -20,7 +20,7 @@ class ScrollTextWindow(QWidget):
         self.isSongNameAllOut = False
 
         # 设置两段字符串之间留白的宽度
-        self.spacing = 25
+        self.spacing = 100
         # 初始化界面
         self.initWidget()
 
@@ -46,7 +46,7 @@ class ScrollTextWindow(QWidget):
 
     def getTextWidth(self):
         """ 计算文本的总宽度 """
-        songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 25, 400))
+        songFontMetrics = QFontMetrics(QFont('黑体', 25, QFont.Bold))
         self.songNameWidth = songFontMetrics.width(self.songName)
         # songerFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 12, 500))
         # self.songerNameWidth = songerFontMetrics.width(self.songerName)
@@ -85,7 +85,7 @@ class ScrollTextWindow(QWidget):
         painter = QPainter(self)
         painter.setPen(QColor(221,0,0))
         # 绘制歌名
-        painter.setFont(QFont('Microsoft YaHei',25))
+        painter.setFont(QFont('黑体',25,QFont.Bold))
         if self.isSongNameTooLong:
             # 实际上绘制了两段完整的字符串
             # 从负的横坐标开始绘制第一段字符串
