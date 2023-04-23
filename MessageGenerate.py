@@ -21,7 +21,7 @@ class MessageGenerateAndUpload():
     def  newestOrNot(self):
         newfile = self.get_newst_file(self.mbox1_path, '.txt')
         new_file_base =  os.path.basename(newfile)
-        with open(localpath + r'\record.txt', 'r+', encoding='gbk') as f:
+        with open(self.localpath + r'\record.txt', 'r+', encoding='gbk') as f:
             last_ybyj_record = f.readline()
             f.seek(0)
             f.truncate()
@@ -91,51 +91,6 @@ class MessageGenerateAndUpload():
                 list1[i + 1] = bytes([a]) + list1[i + 1]
         return list1
 
-    # def generate_xsp_from_jsst(self, newfile):
-    #     text = []
-    #     with open(newfile, 'r', encoding='gbk') as f:
-    #         file = os.path.basename(newfile)
-    #         daystr, timestr = file.split('.')[0][-4:-2], file.split('.')[0][-2:]
-    #         a = True
-    #         while a:
-    #             a = f.readline()
-    #             text.append(a)
-    #         text_para = ''.join(i for i in text).split("\n\n")
-    #         text1 = text_para[0]
-    #         text2 = text_para[1].split('\n')[0]
-    #         text = ''.join([text1, text2])
-    #         text = text.replace('\n', '，')
-    #         xsp_all = "江苏省气象台{}日{}时发布全省天气预报{}".format(daystr, timestr, [text.split('天气预报')[1] if text.split('天气预报')[1][0]=="：" else "："+text.split('天气预报')[1]][0])
-    #         # print(xsp_all)
-    #         xsp = self.xsp_content_replace_split_rule(xsp_all, 48)
-    #     for i in range(1, 5):
-    #         with open(self.localpath + r'\fwb\Zjxsp' + os.sep + "Styb{}.xsp".format(str(i)), 'w') as xsp_out:
-    #             xspi = xsp[i - 1].decode('gbk')
-    #             xsp_out.write('<AD0{}>'.format(str(i)) + xspi)
-    #         xsp_out.close()
-
-    # def generate_xsp_from_messagebox1(self, newfile):
-    #     day = newfile.split('.txt')[0][-4:-2]
-    #     hour = newfile.split('.txt')[0][-2:]
-    #     text = []
-    #     with open(newfile, 'r', encoding='gbk') as f:
-    #         a = True
-    #         while a:
-    #             a = f.readline()
-    #             text.append(a)
-    #     text = [i.strip('\n') for i in text]
-    #     text = ''.join(i for i in text)
-    #     content = text.split('天气预报')[1]
-    #     forecaster = text.split('号预报员')[0].split('气象台')[1] + "号预报员"
-    #     xsp_all = '镇江市气象台{}日{}时发布天气预报:{}({})'.format(day, hour, content, forecaster)
-    #     xsp = self.xsp_content_replace_split_rule(xsp_all, 48)
-    #
-    #     for i in range(1, 5):
-    #         with open(self.localpath + r'\fwb\Zjxsp' + os.sep + "Bsyb{}.xsp".format(str(i)), 'w') as xsp_out:
-    #             xspi = xsp[i - 1].decode('gbk')
-    #             xsp_out.write('<WEA{}>'.format(str(i)) + xspi)
-    #         xsp_out.close()
-    #     return xsp_all
 
     def GetMessageBox1Content(self):
         flag,newfile = self.newestOrNot()
@@ -152,13 +107,19 @@ class MessageGenerateAndUpload():
             text = ''.join(i for i in text)
             content = text.split('天气预报')[1]
             MessageBox1Content = '镇江市气象台{}日{}时发布天气预报:{}'.format(day, hour, content)
-            return flag,MessageBox1Content
+        else:
+            with open(self.localpath + r'\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                MessageBox1Content=f.readline()
+                f.seek(0)
+                f.truncate()
+                f.close()
+        return flag,MessageBox1Content
 
     def GenerateSplitYbyj(self,content):
         xsp_list = self.xsp_content_replace_split_rule(content, 48)
         for i in range(1, 5):
             with open(self.localpath + r'\fwb\Zjxsp' + os.sep + "Bsyb{}.xsp".format(str(i)), 'w') as xsp_out:
-                xspi = xsp[i - 1].decode('gbk')
+                xspi = xsp_list[i - 1].decode('gbk')
                 xsp_out.write('<WEA{}>'.format(str(i)) + xspi)
             xsp_out.close()
 
@@ -166,101 +127,101 @@ class MessageGenerateAndUpload():
         xsp_list = self.xsp_content_replace_split_rule(content, 48)
         for i in range(1, 5):
             with open(self.localpath + r'\fwb\Zjxsp' + os.sep + "Styb{}.xsp".format(str(i)), 'w') as xsp_out:
-                xspi = xsp[i - 1].decode('gbk')
+                xspi = xsp_list[i - 1].decode('gbk')
                 xsp_out.write('<AD0{}>'.format(str(i)) + xspi)
             xsp_out.close()
 
-    def GenerateYBYJAndUpload(self,ybyj_text,jsyb_text,state):
+    def GenerateYBYJAndUpload(self,ybyj_text,state):
         flag,content = self.GetMessageBox1Content()
-        if state==0:
-            content_new=content
-        if state==2:
-            content_new="{}         {}".format(content,ybyj_text)
-        if state==1:
-            content_new=ybyj_text
 
-        if flag:
-            try:
-                xsp_zj = self.GenerateSplitYbyj(content_new)
-            except Exceptions as e:
-                ybyj_log1 = '[{}]：市台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
+        with open(self.localpath+r"\市台最新时次预警.txt","r+",encoding="gbk") as f:
+            ybyj = f.readline()
+            f.seek(0)
+            f.truncate()
+            f.close()
+
+        if state==0 :
+            if flag:
+                content_new=content
+                try:
+                    self.GenerateSplitYbyj(content_new)
+                    ybyj_log1 = '[{}]：市台资讯制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), content_new)
+                    ftp_log, ftp_flag = self.xsp_ftp_upload()
+                    http_log = self.GangWuHttpPost(content_new)
+                    ybyj_log = ybyj_log1+ftp_log+http_log
+                    if ftp_flag:
+                        with open(self.localpath + r'\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                            f.write(content_new)
+                            f.close()
+                except Exceptions as e:
+                    ybyj_log = '[{}]：市台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
+
             else:
-                ybyj_log1 = '[{}]：市台资讯制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"),content_new)
-            ftp_log = self.xsp_ftp_upload()
-            ybyj_log1+=ftp_log
+                ybyj_log = '[{}]：市台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
 
+        if state==2:
+            if flag or (ybyj_text!=ybyj):
+                content_new="{}         {}".format(content,ybyj_text)
+                try:
+                    self.GenerateSplitYbyj(content_new)
+                    ybyj_log1 = '[{}]：市台资讯制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), content_new)
+                    ftp_log, ftp_flag = self.xsp_ftp_upload()
+                    http_log = self.GangWuHttpPost(content_new)
+                    ybyj_log = ybyj_log1+ftp_log+http_log
+
+                    if ftp_flag:
+                        with open(self.localpath + r'\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                            f.write(content)
+                            f.close()
+                        with open(self.localpath + r'\市台最新时次预警.txt', 'r+', encoding='gbk') as f:
+                            f.write(ybyj_text)
+                            f.close()
+                except Exceptions as e:
+                    ybyj_log = '[{}]：市台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
+            else:
+                ybyj_log = '[{}]：市台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+
+        if state==1:
+            if ybyj_text!=ybyj:
+                content_new=ybyj_text
+                try:
+                    self.GenerateSplitYbyj(content_new)
+                    ybyj_log1 = '[{}]：市台预警制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), content_new)
+                    ftp_log, ftp_flag = self.xsp_ftp_upload()
+                    http_log = self.GangWuHttpPost(content_new)
+                    ybyj_log = ybyj_log1+ftp_log+http_log
+                    if ftp_flag:
+                        with open(self.localpath + r'\市台最新时次预警.txt', 'r+', encoding='gbk') as f:
+                            f.write(ybyj_text)
+                            f.close()
+            except Exceptions as e:
+                    ybyj_log = '[{}]：市台预警制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
+            else:
+                ybyj_log = '[{}]：市台预警未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+        return ybyj_log,content_new
+
+
+    def GenerateJSYBAndUpload(self,jsyb_text):
+        with open(self.localpath + r"\省台最新时次预报.txt", "r+", encoding="gbk") as f:
+            jsyb= f.readline()
+            f.seek(0)
+            f.truncate()
+            f.close()
+        if jsyb!=jsyb_text:
+            try:
+                self.GenerateSplitJsyb(jsyb_text)
+                jsyb_log = '[{}]：省台预报制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), jsyb_text)
+                ftp_log, ftp_flag = self.xsp_ftp_upload()
+                jsyb_log += ftp_flag
+                if ftp_flag:
+                    with open(self.localpath + r"\省台最新时次预报.txt", "r+", encoding="gbk") as f:
+                        f.write(jsyb_text)
+                        f.close()
         else:
-            ybyj_log1 = '[{}]：市台预报未更新,无需上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+            jsyb_log = '[{}]：省台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+        return jsyb_log,jsyb
 
-        try:
-            xsp_js= self.GenerateSplitJsyb(jsyb_text)
-        except Exceptions as e:
-            jsyb_log1 = '[{}]：省台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
-        else:
-            jsyb_log1= '[{}]：省台资讯制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"),jsyb_text)
-
-        log = ybyj_log1+jsyb_log1
-
-
-        http_log = self.GangWuHttpPost(content_new)
-        log1 = ftp_log+http_log
-
-        log+=log1
-
-        return
-
-
-
-
-
-    # def xsp_ftp_upload_xsp(self):
-    #     mbox1_path = self.localpath + r'\fwb\96121信箱\1'
-    #
-    #     newfile = self.get_newst_file(mbox1_path, '.txt')
-    #     newfile1 = self.get_newst_file(jsst_path, '.txt')
-    #
-    #     basefile = os.path.basename(newfile)
-    #     basefile1 = os.path.basename(newfile1)
-    #
-    #     localpath = r'\\10.127.192.121\Data\fwb\Zjxsp'
-    #     localtime = time.strftime("%Y-%m-%d %H:%M:%S")
-    #
-    #     try:
-    #         xsp = self.generate_xsp_from_messagebox1(newfile)
-    #         # print("xsp:",xsp)
-    #     except Exception as e:
-    #         print('[{}]:{} Generate Error:{}'.format(localtime, basefile, e))
-    #     else:
-    #         print("[{}]:{} Generate Success!".format(localtime, basefile))
-    #     try:
-    #         self.generate_xsp_from_jsst(newfile1)
-    #     except Exception as e:
-    #         print('[{}]:{} Generate Error:{}'.format(localtime, basefile1, e))
-    #     else:
-    #         print("[{}]:{} Generate Success!".format(localtime, basefile1))
-    #     ##将最新文件basename写入record.txt文件,便于下一时次对比使用
-    #
-    #     with open(localpath + r'\record.txt', 'r+', encoding='gbk') as f:
-    #         base_record = f.readline()
-    #         base_record1 = f.readline()
-    #         f.seek(0)
-    #         f.truncate()
-    #         if (base_record != (basefile + '\n')) or (base_record1 != basefile1):
-    #             self.xsp_ftp_upload1(localpath, basefile, basefile1, localtime)
-    #             response = self.GangWuHttpPost(xsp)
-    #             if "插入成功" in response['msg']:
-    #                 print("[{}]:{} GangWu Http Success!".format(localtime, basefile))
-    #             else:
-    #                 print("[{}]:{} GangWu Http Failed!".format(localtime, basefile))
-    #             f.write(basefile + '\n')
-    #             f.write(basefile1)
-    #         else:
-    #             f.write(basefile + '\n')
-    #             f.write(basefile1)
-    #             print('[{}]:No Need To UpLoad!'.format(localtime))
-    #         f.close()
-
-    def xsp_ftp_upload(self):
+def xsp_ftp_upload(self):
         ftp = FTP()
         ftp.connect(self.host, self.port)
         # ftp.set_pasv(False)
@@ -278,10 +239,12 @@ class MessageGenerateAndUpload():
                 ftp.storbinary('STOR ' + remotepath + os.sep + file, fp, bufsize)
                 ftp.set_debuglevel(0)
             ftp_log = '[{}]:LCD屏推送成功!\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+            ftp_flag=1
         except Exception as e:
             ftp_log = '[{}]:LCD屏推送失败!\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
+            ftp_flag = 0
         ftp.close()
-        return ftp_log
+        return ftp_log,ftp_flag
 
     def GangWuHttpPost(self,text):
         #港务集团http服务器地址

@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget,QMainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 import ScrollTextWindow
 from UI_MainWindow import  Ui_MainWindow
+from MessageGenerate import MessageGenerateAndUpload as MGAP
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -22,8 +23,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #推送按钮触发响应机制
         self.pushButton_yujing.clicked.connect(self.messageDisplayRefresh)
 
-    def getFromFTPStation(self):
-        pass
 
     def pushToFTPStation(self):
         pass
@@ -33,11 +32,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lcdNumber.display(currentDateTime)
 
 
-    def messageDisplayRefresh(self):
+    def messagePushAndDisplayRefresh(self):
         textYujing = self.TextYuJing.toPlainText()
+
         if self.radioButton.isChecked():
+            state=0
             self.MessageDisplayContent.update1(textYujing)
         if self.radioButton_2.isChecked():
+            state=1
+        if self.radioButton_3.isChecked():
+            state = 2
+
             self.MessageDisplayContent.update1(textYujing)
 
 
