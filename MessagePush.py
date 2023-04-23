@@ -33,17 +33,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def messagePushAndDisplayRefresh(self):
-        textYujing = self.TextYuJing.toPlainText()
-
+        ybyj_text = self.TextYuJing.toPlainText()
         if self.radioButton.isChecked():
             state=0
-            self.MessageDisplayContent.update1(textYujing)
         if self.radioButton_2.isChecked():
             state=1
         if self.radioButton_3.isChecked():
             state = 2
+        ybyj_log,content_new=MGAP.GenerateYBYJAndUpload(ybyj_text,state)
 
-            self.MessageDisplayContent.update1(textYujing)
+        self.MessageDisplayContent.update1(textYujing)
 
 
 
