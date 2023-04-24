@@ -436,7 +436,7 @@ class Ui_MainWindow(object):
         self.radioButton_2.setText(_translate("MainWindow", "预警独立显示"))
         self.radioButton_3.setText(_translate("MainWindow", "预报预警联合"))
         self.label_4.setText(_translate("MainWindow", "预警时长"))
-        self.lineEdit.setPlaceholderText(_translate("MainWindow", "3"))
+        self.lineEdit.setText(_translate("MainWindow", "3"))
         self.label_5.setText(_translate("MainWindow", "小时"))
         self.loggingBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"

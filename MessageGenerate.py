@@ -10,7 +10,6 @@ import requests
 
 class MessageGenerateAndUpload():
     def __init__(self):
-        self.zjyb_text=""
         self.localpath = r'\\10.127.192.121\Data'
         self.host = '10.124.32.202'
         self.port = 21
@@ -21,16 +20,19 @@ class MessageGenerateAndUpload():
     def  newestOrNot(self):
         newfile = self.get_newst_file(self.mbox1_path, '.txt')
         new_file_base =  os.path.basename(newfile)
-        with open(self.localpath + r'\record.txt', 'r+', encoding='gbk') as f:
+        print("最新文件：",new_file_base)
+        with open(self.localpath + r'\fwb\Zjxsp\record.txt', 'r+', encoding='gbk') as f:
             last_ybyj_record = f.readline()
-            f.seek(0)
-            f.truncate()
+            print("最后记录：",last_ybyj_record)
             if new_file_base ==last_ybyj_record:
                 flag = 0
             else:
                 flag = 1
+                f.seek(0)
+                f.truncate()
                 f.write(new_file_base)
             f.close()
+        print("flag:",flag)
         return flag,newfile
 
 
@@ -108,10 +110,8 @@ class MessageGenerateAndUpload():
             content = text.split('天气预报')[1]
             MessageBox1Content = '镇江市气象台{}日{}时发布天气预报:{}'.format(day, hour, content)
         else:
-            with open(self.localpath + r'\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+            with open(self.localpath + r'\fwb\Zjxsp\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
                 MessageBox1Content=f.readline()
-                f.seek(0)
-                f.truncate()
                 f.close()
         return flag,MessageBox1Content
 
@@ -134,15 +134,13 @@ class MessageGenerateAndUpload():
     def GenerateYBYJAndUpload(self,ybyj_text,state):
         flag,content = self.GetMessageBox1Content()
 
-        with open(self.localpath+r"\市台最新时次预警.txt","r+",encoding="gbk") as f:
+        with open(self.localpath+r"\fwb\Zjxsp\市台最新时次预警.txt","r+",encoding="gbk") as f:
             ybyj = f.readline()
-            f.seek(0)
-            f.truncate()
             f.close()
 
         if state==0 :
+            content_new = content
             if flag:
-                content_new=content
                 try:
                     self.GenerateSplitYbyj(content_new)
                     ybyj_log1 = '[{}]：市台资讯制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), content_new)
@@ -150,7 +148,9 @@ class MessageGenerateAndUpload():
                     http_log = self.GangWuHttpPost(content_new)
                     ybyj_log = ybyj_log1+ftp_log+http_log
                     if ftp_flag:
-                        with open(self.localpath + r'\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                        with open(self.localpath + r'\fwb\Zjxsp\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                            f.seek(0)
+                            f.truncate()
                             f.write(content_new)
                             f.close()
                 except Exceptions as e:
@@ -160,8 +160,8 @@ class MessageGenerateAndUpload():
                 ybyj_log = '[{}]：市台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
 
         if state==2:
+            content_new = "{}         {}".format(content, ybyj_text)
             if flag or (ybyj_text!=ybyj):
-                content_new="{}         {}".format(content,ybyj_text)
                 try:
                     self.GenerateSplitYbyj(content_new)
                     ybyj_log1 = '[{}]：市台资讯制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), content_new)
@@ -170,10 +170,14 @@ class MessageGenerateAndUpload():
                     ybyj_log = ybyj_log1+ftp_log+http_log
 
                     if ftp_flag:
-                        with open(self.localpath + r'\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                        with open(self.localpath + r'\fwb\Zjxsp\市台最新时次预报.txt', 'r+', encoding='gbk') as f:
+                            f.seek(0)
+                            f.truncate()
                             f.write(content)
                             f.close()
-                        with open(self.localpath + r'\市台最新时次预警.txt', 'r+', encoding='gbk') as f:
+                        with open(self.localpath + r'\fwb\Zjxsp\市台最新时次预警.txt', 'r+', encoding='gbk') as f:
+                            f.seek(0)
+                            f.truncate()
                             f.write(ybyj_text)
                             f.close()
                 except Exceptions as e:
@@ -182,8 +186,8 @@ class MessageGenerateAndUpload():
                 ybyj_log = '[{}]：市台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
 
         if state==1:
+            content_new = ybyj_text
             if ybyj_text!=ybyj:
-                content_new=ybyj_text
                 try:
                     self.GenerateSplitYbyj(content_new)
                     ybyj_log1 = '[{}]：市台预警制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), content_new)
@@ -191,10 +195,12 @@ class MessageGenerateAndUpload():
                     http_log = self.GangWuHttpPost(content_new)
                     ybyj_log = ybyj_log1+ftp_log+http_log
                     if ftp_flag:
-                        with open(self.localpath + r'\市台最新时次预警.txt', 'r+', encoding='gbk') as f:
+                        with open(self.localpath + r'\fwb\Zjxsp\市台最新时次预警.txt', 'r+', encoding='gbk') as f:
+                            f.seek(0)
+                            f.truncate()
                             f.write(ybyj_text)
                             f.close()
-            except Exceptions as e:
+                except Exceptions as e:
                     ybyj_log = '[{}]：市台预警制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
             else:
                 ybyj_log = '[{}]：市台预警未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -202,10 +208,8 @@ class MessageGenerateAndUpload():
 
 
     def GenerateJSYBAndUpload(self,jsyb_text):
-        with open(self.localpath + r"\省台最新时次预报.txt", "r+", encoding="gbk") as f:
+        with open(self.localpath + r"\fwb\Zjxsp\省台最新时次预报.txt", "r+", encoding="gbk") as f:
             jsyb= f.readline()
-            f.seek(0)
-            f.truncate()
             f.close()
         if jsyb!=jsyb_text:
             try:
@@ -214,44 +218,47 @@ class MessageGenerateAndUpload():
                 ftp_log, ftp_flag = self.xsp_ftp_upload()
                 jsyb_log += ftp_flag
                 if ftp_flag:
-                    with open(self.localpath + r"\省台最新时次预报.txt", "r+", encoding="gbk") as f:
+                    with open(self.localpath + r"\fwb\Zjxsp\省台最新时次预报.txt", "r+", encoding="gbk") as f:
+                        f.seek(0)
+                        f.truncate()
                         f.write(jsyb_text)
                         f.close()
+            except Exceptions as e:
+                jsyb_log = '[{}]：省台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
         else:
             jsyb_log = '[{}]：省台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
         return jsyb_log,jsyb
 
-def xsp_ftp_upload(self):
-        ftp = FTP()
-        ftp.connect(self.host, self.port)
-        # ftp.set_pasv(False)
-        ftp.login(self.user, self.password)
+    def xsp_ftp_upload(self):
+            ftp = FTP()
+            ftp.connect(self.host, self.port)
+            # ftp.set_pasv(False)
+            ftp.login(self.user, self.password)
 
-        remotepath = r'\SEVP\DXYB\ZYFW'
+            remotepath = r'\SEVP\DXYB\ZYFW'
 
-        #上传文件
-        localfiles = glob.glob(self.localpath + os.sep + '*.xsp')
-        try:
-            for file in localfiles:
-                bufsize = 1024
-                fp = open(file, 'rb')
-                file = os.path.basename(file)
-                ftp.storbinary('STOR ' + remotepath + os.sep + file, fp, bufsize)
-                ftp.set_debuglevel(0)
-            ftp_log = '[{}]:LCD屏推送成功!\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
-            ftp_flag=1
-        except Exception as e:
-            ftp_log = '[{}]:LCD屏推送失败!\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
-            ftp_flag = 0
-        ftp.close()
-        return ftp_log,ftp_flag
+            #上传文件
+            localfiles = glob.glob(self.localpath + os.sep + '*.xsp')
+            try:
+                for file in localfiles:
+                    bufsize = 1024
+                    fp = open(file, 'rb')
+                    file = os.path.basename(file)
+                    ftp.storbinary('STOR ' + remotepath + os.sep + file, fp, bufsize)
+                    ftp.set_debuglevel(0)
+                ftp_log = '[{}]：LCD屏推送成功!\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
+                ftp_flag=1
+            except Exception as e:
+                ftp_log = '[{}]：LCD屏推送失败!\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
+                ftp_flag = 0
+            ftp.close()
+            return ftp_log,ftp_flag
 
     def GangWuHttpPost(self,text):
         #港务集团http服务器地址
         url = 'http://api.portzj.com/psys-gateway-service/api/external/weather_forecast/insert'
         #json格式文件
         data = {"content": text, "createName": "tqyb"}
-        print(data)
         headers = {
             'Content-Type': 'application/json',
             'accesstoken': 'btulVR0+Oghty39WSD1fE9Rg+LJZ8SHyfZzg0hgEkCLk5ebgDrvJGhYQA40hFSJtoGsAvBENXsE0uuyKahM5oZYwYrrpubR/qy4xXKoFIz+YKtwgpSUl+Uvfd0z5aQ3AT8C47PWjY/SJR+Kvk0m64Uown/rCG0pnXBxLQjKaH9PqvwVHbRG2QQk/PSqk/eX6OLGVIdWUqmdvF/JqSHebEw=='
