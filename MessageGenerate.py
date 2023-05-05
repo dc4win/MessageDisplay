@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-import schedule
 import time
 from ftplib import FTP
 import glob
@@ -153,7 +152,7 @@ class MessageGenerateAndUpload():
                             f.truncate()
                             f.write(content_new)
                             f.close()
-                except Exceptions as e:
+                except Exception as e:
                     ybyj_log = '[{}]：市台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
 
             else:
@@ -180,7 +179,7 @@ class MessageGenerateAndUpload():
                             f.truncate()
                             f.write(ybyj_text)
                             f.close()
-                except Exceptions as e:
+                except Exception as e:
                     ybyj_log = '[{}]：市台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
             else:
                 ybyj_log = '[{}]：市台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -200,7 +199,7 @@ class MessageGenerateAndUpload():
                             f.truncate()
                             f.write(ybyj_text)
                             f.close()
-                except Exceptions as e:
+                except Exception as e:
                     ybyj_log = '[{}]：市台预警制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
             else:
                 ybyj_log = '[{}]：市台预警未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -223,7 +222,7 @@ class MessageGenerateAndUpload():
                         f.truncate()
                         f.write(jsyb_text)
                         f.close()
-            except Exceptions as e:
+            except Exception as e:
                 jsyb_log = '[{}]：省台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
         else:
             jsyb_log = '[{}]：省台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
