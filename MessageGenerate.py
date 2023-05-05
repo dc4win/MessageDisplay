@@ -238,7 +238,7 @@ class MessageGenerateAndUpload():
             remotepath = r'\SEVP\DXYB\ZYFW'
 
             #上传文件
-            localfiles = glob.glob(self.localpath + os.sep + '*.xsp')
+            localfiles = glob.glob(self.localpath + r"\fwb\Zjxsp"+os.sep +"*.xsp")
             try:
                 for file in localfiles:
                     bufsize = 1024
