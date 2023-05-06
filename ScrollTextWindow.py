@@ -24,8 +24,16 @@ class ScrollTextWindow(QWidget):
         # 初始化界面
         self.initWidget()
 
+    def enterEvent(self,QEvent):
+        self.moveStep=2
+
+    def leaveEvent(self,QEvent):
+        self.moveStep=1
+
+
     def update1(self,text):
         self.songName = text
+        self.spacing = QFontMetrics(QFont('黑体', 25, QFont.Bold)).width(self.songName)//6
         self.songCurrentIndex = 0
 
     def initWidget(self):

@@ -222,9 +222,10 @@ class Ui_MainWindow(object):
 "}")
         self.pushButton_jiangsu.setObjectName("pushButton_jiangsu")
         self.ButtonArea.addWidget(self.pushButton_jiangsu)
-
+        with open(r'\\10.127.192.121\Data\fwb\Zjxsp\市台最新时次预报.txt','r+', encoding='gbk') as f:
+            song = f.readline()
         songInfo = {
-            'songName': '全市今天下午到夜里阴到多云，东北风4到5级，今天最高气温: 24℃左右，明晨最低气温: 17℃左右。20日全市多云，20日最高气温: 23℃到 24℃，21日最低气温: 14℃到 15℃。21日全市多云，21日最高气温: 19℃到 20℃，22日最低气温: 12℃左右。'}
+            'songName':song}
         self.MessageDisplayContent= ScrollTextWindow.ScrollTextWindow(songInfo["songName"],self)
         self.MessageDisplayContent.setGeometry(QtCore.QRect(179, 10, 598, 71))
 
