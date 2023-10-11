@@ -19,10 +19,8 @@ class MessageGenerateAndUpload():
     def  newestOrNot(self):
         newfile = self.get_newst_file(self.mbox1_path, '.txt')
         new_file_base =  os.path.basename(newfile)
-        print("最新文件：",new_file_base)
         with open(self.localpath + r'\fwb\Zjxsp\record.txt', 'r+', encoding='gbk') as f:
             last_ybyj_record = f.readline()
-            print("最后记录：",last_ybyj_record)
             if new_file_base ==last_ybyj_record:
                 flag = 0
             else:
@@ -31,7 +29,6 @@ class MessageGenerateAndUpload():
                 f.truncate()
                 f.write(new_file_base)
             f.close()
-        print("flag:",flag)
         return flag,newfile
 
 
@@ -209,15 +206,18 @@ class MessageGenerateAndUpload():
 
 
     def GenerateJSYBAndUpload(self,jsyb_text):
+        flag, content = self.GetMessageBox1Content()
         with open(self.localpath + r"\fwb\Zjxsp\省台最新时次预报.txt", "r+", encoding="gbk") as f:
             jsyb= f.readline()
             f.close()
-        if jsyb!=jsyb_text:
+            print("上次时次：",jsyb)
+            print("当前时次：",content)
+        if jsyb!=content:
             try:
-                text_new = self.GenerateSplitJsyb(jsyb_text)
+                text_new = self.GenerateSplitJsyb(content)
                 jsyb_log = '[{}]：省台预报制作成功！\n{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), text_new)
                 ftp_log, ftp_flag = self.xsp_ftp_upload()
-                jsyb_log += ftp_flag
+                jsyb_log += ftp_log
                 if ftp_flag:
                     with open(self.localpath + r"\fwb\Zjxsp\省台最新时次预报.txt", "r+", encoding="gbk") as f:
                         f.seek(0)
@@ -227,6 +227,7 @@ class MessageGenerateAndUpload():
             except Exception as e:
                 jsyb_log = '[{}]：省台资讯制作失败，失败原因::{}\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"), e)
         else:
+            text_new = jsyb
             jsyb_log = '[{}]：省台资讯未更新,无需制作上传！\n'.format(time.strftime("%Y-%m-%d %H:%M:%S"))
         return jsyb_log,text_new
 

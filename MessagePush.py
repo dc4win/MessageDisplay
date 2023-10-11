@@ -1,12 +1,15 @@
 import sys
 from PyQt5.QtCore import Qt ,QTime,QTimer,QDateTime,QThread
-from PyQt5.QtGui import QFont, QFontMetrics, QPainter,QPixmap
+from PyQt5.QtGui import QFont, QFontMetrics, QPainter,QPixmap,QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget,QMainWindow,QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
 import ScrollTextWindow
 from UI_MainWindow import  Ui_MainWindow
 from MessageGenerate import MessageGenerateAndUpload as MGAU
 import time
+import ctypes
+
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -39,6 +42,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def get_ybyjtext_radiobuttonstate(self):
         self.ybyj_text = self.TextYuJing.toPlainText()
+        self.jsyb_text = self.TextJiangSu.toPlainText()
         #判断当前模式
         if self.radioButton.isChecked():
             self.state = 0
@@ -59,7 +63,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def ybyj_button_click_upload_thread(self):
         if self.state==1 or self.state==2:
-            self.thread2 = YuJingUploadThread(self.ybyj_text,self.state)
+            self.thread2 = YuJingUploadThread(self.ybyj_text,self.jsyb_text,self.state)
             self.thread2.signal.connect(self.displayInBrowser)
             self.thread2.start()
             timelast = float(self.lineEdit.text())
@@ -69,9 +73,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             QMessageBox.critical(self, "错误", "当前模式不支持预警发布")
 
-
     def jsyb_button_click_upload_thread(self):
-        pass
+        self.thread3 = YuJingUploadThread(self.ybyj_text,self.jsyb_text,self.state)
+        self.thread3.signal.connect(self.displayInBrowser)
+        self.thread3.start()
 
 
     def dateTimeRefresh(self):
@@ -101,48 +106,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.loggingBrowser.append(text1)
         self.MessageDisplayContent.update1(text2)
 
-    # def ybyjMessagePushAndDisplayRefresh(self):
-    #     ybyj_text = self.TextYuJing.toPlainText()
-    #     if self.radioButton.isChecked():
-    #         state = 0
-    #     if self.radioButton_2.isChecked():
-    #         state = 1
-    #     if self.radioButton_3.isChecked():
-    #         state = 2
-    #     ybyj_log,content_new=MGAU().GenerateYBYJAndUpload(ybyj_text,state)
-    #     self.loggingBrowser.append(ybyj_log)
-    #     self.MessageDisplayContent.update1(content_new)
-
-
 class YuJingUploadThread(QThread):
     signal = QtCore.pyqtSignal(str, str)
 
-    def __init__(self, text, state):
+    def __init__(self, text1,text2,state):
         super(YuJingUploadThread, self).__init__()
-        self.ybyj_text = text
+        self.ybyj_text = text1
+        self.jsyb_text = text2
         self.state = state
 
     def run(self):
         ybyj_log, content_new = MGAU().GenerateYBYJAndUpload(self.ybyj_text, self.state)
-        self.signal.emit(ybyj_log, content_new)
+        jsyb_log, text_new = MGAU().GenerateJSYBAndUpload(self.ybyj_text)
+        self.signal.emit(ybyj_log+jsyb_log, content_new+'       '+text_new)
 
 class GenerateUploadThread(QThread):
     signal = QtCore.pyqtSignal(str,str)
-    def __init__(self,text1,text2):
+    def __init__(self,text1,state):
         super(GenerateUploadThread,self).__init__()
         self.text1 = text1
-        self.text2 = text2
+        self.state = state
     def run(self):
-        # while True:
-        #     nowtime = time.localtime()
-        #     minute = time.strftime("%M",nowtime)
-        #     print(minute)
-        #     time.sleep(1)
-        ybyj_log, content_new = MGAU().GenerateYBYJAndUpload(self.text1,self.text2)
-        self.signal.emit(ybyj_log,content_new)
+        ybyj_log, content_new = MGAU().GenerateYBYJAndUpload(self.text1,self.state)
+        jsyb_log,text_new = MGAU().GenerateJSYBAndUpload(self.text1)
+        self.signal.emit(ybyj_log+jsyb_log,content_new+'       '+text_new)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon('镇江气象logo（圆）.png'))
     window =MainWindow()
     window.show()
     sys.exit(app.exec_())

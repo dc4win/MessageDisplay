@@ -427,7 +427,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "短信显示推送软件"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "气象服务短信显示推送软件"))
         self.label_6.setText(_translate("MainWindow", "镇江预报预警信息："))
         self.label_7.setText(_translate("MainWindow", "省台预报信息："))
         self.pushButton_yujing.setText(_translate("MainWindow", "预警推送"))
